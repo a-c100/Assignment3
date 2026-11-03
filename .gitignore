@@ -1,2 +1,5 @@
 # Corpus folder
 DEV
+
+# python
+__pycache__
