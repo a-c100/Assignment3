@@ -1,13 +1,15 @@
 from pathlib import Path
 
 """
-tokenize(path : str) -> list[str]
+tokenize(text: str) -> list[str]
 
-This function runs in O(n * m) time, where 
-n is the number of lines in the file and m is the average
-number of characters in each line. 
+Converts text to lowercase ASCII alphanumeric tokens.
+Returns all tokens, including duplicates.
 
+Time complexity: O(n), where n is the number
+of characters in the input text.
 """
+
 def tokenize(text) -> list[str]:
     # list containing all resulting tokens
     tokens = []

@@ -28,7 +28,7 @@ def process_page(content):
     tokens = tokenizer.tokenize(raw_text)
     stemmed_tokens = [stemmer.stem(token) for token in tokens]
 
-    return tokens
+    return stemmed_tokens
 
 
 
@@ -43,7 +43,5 @@ def extract_and_read_json():
         with open(path, "r", encoding="utf-8") as f:
             page = json.load(f)
             stemmed_tokens = process_page(page["content"])
+
             # @TODO save frequency
-
-
-            
