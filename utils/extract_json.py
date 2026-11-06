@@ -1,5 +1,7 @@
 import os
 import json
+import tokenizer
+import stemming
 
 CORPUS_ROOT_PATH = "DEV"
 
@@ -11,6 +13,9 @@ def iter_json_files(root):
 # @TODO retrieve text, tokenize, and stem
 def process_page(page : dict[str, str]):
     content = page["content"]
+    tokens = tokenizer.tokenize(content)
+
+
 
 
 def extract_and_read_json():
