@@ -8,26 +8,15 @@ n is the number of lines in the file and m is the average
 number of characters in each line. 
 
 """
-def tokenize(path : str) -> list[str]:
+def tokenize(text) -> list[str]:
     # list containing all resulting tokens
     tokens = []
+    
+    # replace special characters with blank space
+    cleaned = ''.join([c if c.isalnum() and c.isascii() else ' ' for c in text])
 
-    try:
-        with open(path, 'r', encoding='utf-8') as file:
-            for line in file:
-                # tokenize curr line
-
-                # to account for possessive/shortened words
-                line = line.lower().replace("'", "") 
-
-                # replace special characters with blank space
-                cleaned = ''.join([c if c.isalnum() and c.isascii() else ' ' for c in line])
-
-                # add tokens in the current line to tokens list
-                tokens.extend(cleaned.split())
-
-    except:
-        raise FileNotFoundError("Could not find file")
+    # add tokens in the current line to tokens list
+    tokens.extend(cleaned.split())
 
     return tokens
 
