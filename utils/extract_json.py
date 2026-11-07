@@ -20,7 +20,7 @@ def iter_json_files(root):
             yield os.path.join(dirpath, name) 
 
 # @TODO retrieve text, tokenize, and stem
-def process_page(content) -> dict[str, int]:
+def process_page(content) -> tuple[str, dict[str, int]]:
     stemmer = Stemmer()
     
     #parse page
@@ -32,6 +32,7 @@ def process_page(content) -> dict[str, int]:
     stemmed_tokens = [stemmer.stem(token) for token in tokens]
 
     page_name = soup.title.get_text(strip=True) if soup.title else UNKNOWN_FILE_NAME
+
     # can be modified back later to return list if we care about token position
     return page_name, computeWordFrequencies(stemmed_tokens)
 
