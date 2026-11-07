@@ -10,29 +10,17 @@ Time complexity: O(n), where n is the number
 of characters in the input text.
 """
 
-# def tokenize(text) -> list[str]:
-#     # list containing all resulting tokens
-#     tokens = []
-    
-#     # replace special characters with blank space
-#     cleaned = ''.join([c if c.isalnum() and c.isascii() else ' ' for c in text])
-
-#     # add tokens in the current line to tokens list
-#     tokens.extend(cleaned.split())
-
-#     return tokens
-
 def tokenize(text) -> list[str]:
     """
     converts text into lower case tokens defined as alphanumeric sequences in the dataset. 
-    
+
     makestrans() creates a transition table that replaces the character w/ a space if c isn't
     in allowed.  
     """
     allowed = string.ascii_letters + string.digits
 
     translator = str.maketrans({ 
-        c: ' ' for c in set(text) if c not in allowed
+        c: ' ' for c in set(text.lower()) if c not in allowed
     })
 
     return text.lower().translate(translator).split()
