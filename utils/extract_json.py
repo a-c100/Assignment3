@@ -43,5 +43,4 @@ def extract_and_read_json():
         with open(path, "r", encoding="utf-8") as f:
             page = json.load(f)
             stemmed_tokens = process_page(page["content"])
-
             # @TODO save frequency
