@@ -11,13 +11,15 @@ of characters in the input text.
 """
 
 def tokenize(text) -> list[str]:
+    # allowing only alphanumeric chars
     allowed = string.ascii_letters + string.digits
 
-    # creates a transition table that replaces the character w/ a space if c isn't allowed
+    # creates a translation table to replace disallowed characters with spaces (doesn't do the applying yet)
     translator = str.maketrans({ 
         c: ' ' for c in set(text.lower()) if c not in allowed
     })
 
+    # translates the text to lowercase, applies the rules, removes white spaces then returns 
     return text.lower().translate(translator).split()
 
 """
