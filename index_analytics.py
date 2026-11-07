@@ -17,7 +17,7 @@ def get_dict_disk_size_kb(my_dict) -> int:
 
 def analyzeInvertedIndex():
     indexer = InvertedIndex()
-    indexer.indexDirectory('Data_Sources/DEV')
+    indexer.indexDirectory('Data Sources/DEV')
     index = indexer.getInvertedIndex()
     with open("outputs/invertedMatrix.txt", "w", encoding="utf-8") as f:
         for key in index:
@@ -33,7 +33,7 @@ def analyzeInvertedIndex():
         
         print(f'\nUnique tokens: {count}', file=f)
         print(f'Number of Documents: {indexer.getNumDocs()}', file=f)
-        print(f'Index size on disk : {get_dict_disk_size_kb(index)}', file=f)
+        print(f'Index size on disk : {get_dict_disk_size_kb(index)} kb', file=f)
 
 
 

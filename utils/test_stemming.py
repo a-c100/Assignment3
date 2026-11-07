@@ -21,3 +21,5 @@ test_stemmer('fished', 'fish')
 test_stemmer('pirating', 'pirate')
 test_stemmer('falling', 'fall')
 test_stemmer('hoping', 'hope')
+
+test_stemmer('decolonization', 'decolonize')
