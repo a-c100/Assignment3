@@ -35,6 +35,7 @@ class Stemmer():
 
 
     def porterStem(self, word: str) -> str:
+        word = word.lower()
         # step 1a
         if word.endswith('sses'): #sses -> ss
             word = word[:-2]
