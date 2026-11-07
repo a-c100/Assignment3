@@ -1,8 +1,8 @@
 from pathlib import Path
 import string
+
 """
 tokenize(text: str) -> list[str]
-
 Converts text to lowercase ASCII alphanumeric tokens.
 Returns all tokens, including duplicates.
 
@@ -10,25 +10,17 @@ Time complexity: O(n), where n is the number
 of characters in the input text.
 """
 
-# def tokenize(text) -> list[str]:
-#     # list containing all resulting tokens
-#     tokens = []
-    
-#     # replace special characters with blank space
-#     cleaned = ''.join([c if c.isalnum() and c.isascii() else ' ' for c in text])
-
-#     # add tokens in the current line to tokens list
-#     tokens.extend(cleaned.split())
-
-#     return tokens
-
 def tokenize(text) -> list[str]:
+    # allowing only alphanumeric chars
     allowed = string.ascii_letters + string.digits
-    translator = str.maketrans({
-        c: ' ' for c in map(chr, range(128)) if c not in allowed
+
+    # creates a translation table to replace disallowed characters with spaces (doesn't do the applying yet)
+    translator = str.maketrans({ 
+        c: ' ' for c in set(text.lower()) if c not in allowed
     })
 
-    return text.translate(translator).split()
+    # translates the text to lowercase, applies the rules, removes white spaces then returns 
+    return text.lower().translate(translator).split()
 
 """
 This function, computeWordFrequencies(), runs in O(n + m log m), where
