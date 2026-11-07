@@ -1,8 +1,8 @@
 from pathlib import Path
 import string
+
 """
 tokenize(text: str) -> list[str]
-
 Converts text to lowercase ASCII alphanumeric tokens.
 Returns all tokens, including duplicates.
 
@@ -11,14 +11,9 @@ of characters in the input text.
 """
 
 def tokenize(text) -> list[str]:
-    """
-    converts text into lower case tokens defined as alphanumeric sequences in the dataset. 
-
-    makestrans() creates a transition table that replaces the character w/ a space if c isn't
-    in allowed.  
-    """
     allowed = string.ascii_letters + string.digits
 
+    # creates a transition table that replaces the character w/ a space if c isn't allowed
     translator = str.maketrans({ 
         c: ' ' for c in set(text.lower()) if c not in allowed
     })

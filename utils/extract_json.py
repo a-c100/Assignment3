@@ -19,14 +19,24 @@ def iter_json_files(root):
         for name in sorted(filenames):
             yield os.path.join(dirpath, name) 
 
-# @TODO retrieve text, tokenize, and stem
+
 def process_page(content) -> tuple[str, dict[str, int]]:
+    '''
+    takes in the JSON file's content and parses it using BeautifulSoup
+    with an HTML parser.
+
+    extracts the text without the HTML tags, tokenizes it, and applies
+    stemming to each token.
+
+    returns a tuple containing the page_name as a string and a dictionary
+    of tokens with their frequencies.
+    '''
     stemmer = Stemmer()
     
     #parse page
     soup = BeautifulSoup(content, "html.parser")
     
-    # @TODO extract text and tokenize and stem
+    # extracts text and tokenize and stem
     raw_text = soup.get_text(separator=" ", strip=True)
     tokens = tokenize(raw_text)
     stemmed_tokens = [stemmer.stem(token) for token in tokens]
@@ -35,15 +45,6 @@ def process_page(content) -> tuple[str, dict[str, int]]:
 
     # can be modified back later to return list if we care about token position
     return page_name, computeWordFrequencies(stemmed_tokens)
-
-'''
-    stemmed_token_map = dict()
-    for token in tokens:
-        if not token in stemmed_token_map:
-            stemmed_token_map[token] = 0
-        stemmed_token_map[token] += 1
-
-    return stemmed_token_map'''
 
 
 def extract_and_read_json(root_path = CORPUS_ROOT_PATH):
@@ -60,4 +61,3 @@ def extract_and_read_json(root_path = CORPUS_ROOT_PATH):
                 yield page_name, stemmed_token_map
             except UnicodeDecodeError:
                 continue
-            # @TODO save frequency
