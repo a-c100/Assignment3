@@ -39,7 +39,6 @@ class InvertedIndex():
     def indexDocument(self, doc, tokens_map) -> None:
         docID = self.assign_docID(doc)
         
-
         for token in tokens_map:
             self.addWordToIndex(token, tokens_map[token], docID)
 
