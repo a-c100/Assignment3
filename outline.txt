@@ -1,51 +1,43 @@
-Indexer
+# Indexer
+
 Create an inverted index for the corpus with data structures designed by you.
-• Tokens: all alphanumeric sequences in the dataset.
-• Stop words: do not use stopping while indexing, i.e. use all words, even
-the frequently occurring ones.
-• Stemming: use stemming for better textual matches. Suggestion: Porter
-stemming, but it is up to you to choose.
-• Important text: text in bold (b, strong), in headings (h1, h2, h3), and
-in titles should be treated as more important than the in other places.
-Verify which are the relevant HTML tags to select the important words.
 
-Corpus
-A large collection of ICS web pages (developer.zip).
-Your index should be stored in one or more files in the file system (no databases!).
+- **Tokens:** all alphanumeric sequences in the dataset.
+- **Stop words:** do not use stopping while indexing, i.e. use all words, even the frequently occurring ones.
+- **Stemming:** use stemming for better textual matches. Suggestion: Porter stemming, but it is up to you to choose.
+- **Important text:** text in bold (`b`, `strong`), in headings (`h1`, `h2`, `h3`), and in titles should be treated as more important than text in other places.
+- Verify which are the relevant HTML tags to select the important words.
 
-The response to search queries should be ≤ 300ms. Ideally it would be . 100ms,
-but you won’t be penalized if it’s higher (as long as it’s kept ≤ 300ms)
+---
 
+## Corpus
 
+A large collection of ICS web pages (`developer.zip`).
 
-=================Building the inverted index==========
-Now that you have been provided the HTML files to index, you may build your
-inverted index off of them. The inverted index is simply a map with the token
-as a key and a list of its corresponding postings. A posting is the representation
-of the token’s occurrence in a document. The posting typically (not limited to)
-contains the following info (you are encouraged to think of other attributes that
-you could add to the index):
-• The document name/id the token was found in.
-• Its tf-idf score for that document (for MS1, add only the term frequency).
-Some tips:
-• When designing your inverted index, you will think about the structure
-of your posting first.
-• You would normally begin by implementing the code to calculate/fetch
-the elements which will constitute your posting.
+Your index should be stored in one or more files in the file system (**no databases!**).
 
+The response to search queries should be **≤ 300 ms**. Ideally it would be **≤ 100 ms**, but you won't be penalized if it's higher (as long as it's kept ≤ 300 ms).
 
+---
 
+## Building the Inverted Index
 
+Now that you have been provided the HTML files to index, you may build your inverted index off of them. The inverted index is simply a map with the token as a key and a list of its corresponding postings. A **posting** is the representation of the token's occurrence in a document. The posting typically (not limited to) contains the following info (you are encouraged to think of other attributes that you could add to the index):
 
+- The document name/id the token was found in.
+- Its tf-idf score for that document (for MS1, add only the term frequency).
 
-Typically, the cloud servers/VMs/containers that run search engines don’t have
-a lot of memory. As such, you must design and implement your programs as
-if you are dealing with very large amounts of data, so large that you cannot
-hold the inverted index all in memory. 
+### Tips
 
-****Your indexer must off load the inverted index hash map from main memory to a partial index on disk at least 3 times
-during index construction ***********
-; those partial indexes should be merged in the end.
-Optionally, after or during merging, they can also be split into separate index
-files with term ranges. 
+- When designing your inverted index, think about the structure of your posting first.
+- You would normally begin by implementing the code to calculate/fetch the elements which will constitute your posting.
 
+---
+
+## Memory Constraints
+
+Typically, the cloud servers/VMs/containers that run search engines don't have a lot of memory. As such, you must design and implement your programs as if you are dealing with very large amounts of data, so large that you cannot hold the inverted index all in memory.
+
+> **Your indexer must offload the inverted index hash map from main memory to a partial index on disk at least 3 times during index construction.**
+
+Those partial indexes should be merged in the end. Optionally, after or during merging, they can also be split into separate index files with term ranges.
