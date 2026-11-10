@@ -4,3 +4,4 @@ DEV
 # python
 __pycache__outputs/invertedMatrix.txt
 outputs/invertedMatrix.txt
+__pycache__*
