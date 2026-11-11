@@ -6,3 +6,6 @@ __pycache__outputs/invertedMatrix.txt
 outputs/invertedMatrix.txt
 __pycache__*
 .venv
+
+# output files
+outputs/*

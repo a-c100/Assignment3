@@ -1,6 +1,6 @@
 from typing import NamedTuple
-from utils.extract_json import *
-
+from utils.extract_json import extract_and_read_json
+from utils.constants import UNKNOWN_FILE_NAME
 
 class Posting(NamedTuple):
     ''' stores the document ID and the number of times a token appears in that document '''
@@ -15,7 +15,7 @@ class InvertedIndex():
         self._docNum = 1 # keeping track of the 
     
 
-    def assign_docID(self, doc: string) -> int:
+    def assign_docID(self, doc: str) -> int:
         """
         Assigns a unique integer to each indexed document
 
@@ -109,7 +109,7 @@ class InvertedIndex():
             self.addWordToIndex(token, tokens_map[token], docID)
 
 
-    def indexDirectory(self, root_path : str = CORPUS_ROOT_PATH) -> None:
+    def indexDirectory(self, root_path) -> None:
         """
         Given a root directory, recursively iterates through all files and, builds the inverted index
 

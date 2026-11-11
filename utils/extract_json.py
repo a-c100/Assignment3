@@ -4,9 +4,7 @@ import json
 from .tokenizer import *
 from .stemming import Stemmer
 from bs4 import BeautifulSoup
-
-UNKNOWN_FILE_NAME = 'Untitled'
-CORPUS_ROOT_PATH = 'Data_Sources/DEV'
+from utils.constants import UNKNOWN_FILE_NAME
 
 def iter_json_files(root): 
     '''
@@ -47,7 +45,7 @@ def process_page(content) -> tuple[str, dict[str, int]]:
     return page_name, computeWordFrequencies(stemmed_tokens)
 
 
-def extract_and_read_json(root_path = CORPUS_ROOT_PATH):
+def extract_and_read_json(root_path):
     # key is a string, list containg strings pair
     # index : dict[str, list[str]]= {}
     # doc_map = {}    

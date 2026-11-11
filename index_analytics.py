@@ -1,4 +1,5 @@
 from inverted_index import *
+from utils.constants import CORPUS_ROOT_PATH
 import io
 import pickle
 
@@ -24,7 +25,7 @@ def get_dict_disk_size_kb(mapping: dict) -> int:
     return int(size_in_kb)
 
 
-def analyzeInvertedIndex(root = 'Data Sources/DEV') -> None:
+def analyzeInvertedIndex(root : str) -> None:
     """
     Creates the inverted index and outputs it to text files
      Args:
@@ -55,5 +56,5 @@ def analyzeInvertedIndex(root = 'Data Sources/DEV') -> None:
 
 
 if __name__ == '__main__':
-    analyzeInvertedIndex()
+    analyzeInvertedIndex(CORPUS_ROOT_PATH)
      
