@@ -56,6 +56,6 @@ def extract_and_read_json(root_path):
             try: 
                 page = json.load(f)
                 page_name, stemmed_token_map = process_page(page["content"])
-                yield page_name, stemmed_token_map
+                yield page["url"], stemmed_token_map
             except UnicodeDecodeError:
                 continue
