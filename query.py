@@ -1,3 +1,5 @@
+from time import perf_counter
+
 from utils.tokenizer import tokenize
 from utils.stemming import Stemmer
 from inverted_index import InvertedIndex
@@ -49,20 +51,38 @@ def query_user_input(num_results = 5) -> None:
         None
     """
     while True:
-        print("Enter your search query, '#' to change number of displayed results, or 'q' to exit:")
+        print("\nEnter your search query, '#' to change number of displayed results, or 'q' to exit:")
         query = input()
-        search_terms = process_query(query)
-        if query[0].lower() == 'q': break
-        elif (query[0] == '#'):
+
+        # query empty check
+        if not query : continue
+
+        if query[0].lower() == 'q':
+            break
+        elif query[0] == '#':
             num_results = get_number_from_user_input()
-        else: 
+        else:
+            if not _indexer.get_inverted_index():
+                print('No inverted index is loaded; cannot search.')
+                continue
+
+            # set up timer
+            start_time = perf_counter()
+            search_terms = process_query(query)
+
+            # get query results
             results = _indexer.get_query_results(search_terms)
+            elapsed_time = perf_counter() - start_time
+
+            print(f'\nSearch completed in {elapsed_time:.6f} seconds.\t\t\t|')
+
             num_found = len(results)
             if num_found == 0: 
                 print('No results found!')
                 continue
             else: 
-                print(f'{num_found} results found!')
+                print(f'{num_found} results found!\n')
+
             for result in results[:num_results]:
                 print(_indexer._docIDtoURL[str(result[0])], result[1])
 
