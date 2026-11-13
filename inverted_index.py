@@ -71,7 +71,7 @@ class InvertedIndex():
         """
         return self._invertedIndex
     
-    def get_documen_map(self) -> dict[int, str]:
+    def get_document_map(self) -> dict[int, str]:
         """
         Returns the mapping of Document IDs to their respective URLs
 
@@ -127,7 +127,7 @@ class InvertedIndex():
             self.add_word_to_index(token, tokens_map[token], docID)
 
 
-    def index_directory(self, root_path : str, save_dir_path : str = None) -> None:
+    def index_directory(self, root_path : str, save_dir_path : str = "") -> None:
         """
         Given a root directory, recursively iterates through all files and builds the inverted index
         Optionally saves the created inverted index to JSON files in a specified directory
@@ -192,7 +192,7 @@ class InvertedIndex():
     
 
 
-    def get_query_results(self, search_terms: list[str]) -> list[int]:
+    def get_query_results(self, search_terms: list[str]) -> list[tuple[int, int]]:
         if not search_terms:
             return []
 
