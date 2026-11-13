@@ -17,6 +17,26 @@ def process_query(text: str) -> list[str]:
     return list(dict.fromkeys(terms))
 
 
+def get_number_from_user_input() -> int:
+    """
+    Returns an integer from user input, or a default value on faulty input
+
+    Args:
+        None
+
+    Returns:
+        (int): The integer from user input, or a default value on failure
+    """
+    print('Enter number of search results to be displayed, or \'@\' for all:')
+    inp = input()
+    try:
+        num = abs(int(inp))
+        return num
+    except ValueError:
+        if inp == '@': return 100000
+        print('Invalid number')
+        return 5
+
 
 def query_user_input(num_results = 5) -> None:
     """
@@ -29,14 +49,22 @@ def query_user_input(num_results = 5) -> None:
         None
     """
     while True:
-        print("Enter your search query, or 'q' to exit:")
+        print("Enter your search query, '#' to change number of displayed results, or 'q' to exit:")
         query = input()
         search_terms = process_query(query)
-        if search_terms[0] == 'q': break
+        if query[0].lower() == 'q': break
+        elif (query[0] == '#'):
+            num_results = get_number_from_user_input()
         else: 
             results = _indexer.get_query_results(search_terms)
+            num_found = len(results)
+            if num_found == 0: 
+                print('No results found!')
+                continue
+            else: 
+                print(f'{num_found} results found!')
             for result in results[:num_results]:
-                print(result)
+                print(_indexer._docIDtoURL[str(result[0])], result[1])
 
 
 def run_query_from_input(json_load_dir : str) -> None:
@@ -49,7 +77,7 @@ def run_query_from_input(json_load_dir : str) -> None:
     Returns:
         None
     """
-    success = _indexer.loadIndexFromDirectory(json_load_dir)
+    success = _indexer.load_index_from_directory(json_load_dir)
     if success:
         query_user_input()
     else: 
@@ -58,7 +86,7 @@ def run_query_from_input(json_load_dir : str) -> None:
 
         if input().lower() == 'y':
             print('Indexing in progress...')
-            _indexer.indexDirectory(CORPUS_ROOT_PATH, JSON_DIRECTORY_NAME)
+            _indexer.index_directory(CORPUS_ROOT_PATH, JSON_DIRECTORY_NAME)
             print('\nIndexing complete!')
             query_user_input()
     

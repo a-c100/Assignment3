@@ -34,8 +34,8 @@ def analyzeInvertedIndex(root : str, json_save_folder = None, write_to_txt_file 
         None
     """
     indexer = InvertedIndex()
-    indexer.indexDirectory(root)
-    index = indexer.getInvertedIndex()
+    indexer.index_directory(root)
+    index = indexer.get_inverted_index()
     if write_to_txt_file:
         with open("outputs/invertedMatrix.txt", "w", encoding="utf-8") as f:
             for key in index:
@@ -47,12 +47,12 @@ def analyzeInvertedIndex(root : str, json_save_folder = None, write_to_txt_file 
             for key in index:
                 print(f'{key} : {len(index[key])}', file=f)
 
-            print(f'\nUnique Tokens: {indexer.getNumUniqueTokens()}', file=f)
-            print(f'Number of Documents: {indexer.getNumDocs()}', file=f)
+            print(f'\nUnique Tokens: {indexer.get_num_unique_tokens()}', file=f)
+            print(f'Number of Documents: {indexer.get_num_docs()}', file=f)
             print(f'Index size on disk : {get_dict_disk_size_kb(index)} kb', file=f)
 
     if json_save_folder != None:
-        indexer.downloadIndexToDirectory(json_save_folder)
+        indexer.download_index_to_directory(json_save_folder)
 
 
 

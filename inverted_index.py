@@ -39,7 +39,7 @@ class InvertedIndex():
         return docID
 
 
-    def addWordToIndex(self, token: str, count: int, docID: int) -> None:
+    def add_word_to_index(self, token: str, count: int, docID: int) -> None:
         """
         Appends a Posting object to the list of documents mapped to token
 
@@ -59,7 +59,7 @@ class InvertedIndex():
         self._invertedIndex[token].append(docInf)
     
 
-    def getInvertedIndex(self) -> dict[str, list[Posting]]:
+    def get_inverted_index(self) -> dict[str, list[Posting]]:
         """
         Returns the inverted index 
 
@@ -71,7 +71,7 @@ class InvertedIndex():
         """
         return self._invertedIndex
     
-    def getDocumentMap(self) -> dict[int, str]:
+    def get_documen_map(self) -> dict[int, str]:
         """
         Returns the mapping of Document IDs to their respective URLs
 
@@ -84,7 +84,7 @@ class InvertedIndex():
         return self._invertedIndex 
 
 
-    def getNumUniqueTokens(self) -> int:
+    def get_num_unique_tokens(self) -> int:
         """
         Returns the number of unique tokens indexed
 
@@ -97,7 +97,7 @@ class InvertedIndex():
         return len(self._invertedIndex)
     
 
-    def getNumDocs(self) -> int:
+    def get_num_docs(self) -> int:
         """
         Returns the number of unique documents indexed
 
@@ -110,7 +110,7 @@ class InvertedIndex():
         return self._docNum - 1
 
 
-    def indexDocument(self, doc: str, tokens_map: dict[str, int]) -> None:
+    def index_document(self, doc: str, tokens_map: dict[str, int]) -> None:
         """
         Indexes a document, assigining doc an integer ID and extending the inverted index
 
@@ -124,10 +124,10 @@ class InvertedIndex():
         # docid to name mapping 
         docID = self.assign_docID(doc)
         for token in tokens_map:
-            self.addWordToIndex(token, tokens_map[token], docID)
+            self.add_word_to_index(token, tokens_map[token], docID)
 
 
-    def indexDirectory(self, root_path : str, save_dir_path : str = None) -> None:
+    def index_directory(self, root_path : str, save_dir_path : str = None) -> None:
         """
         Given a root directory, recursively iterates through all files and builds the inverted index
         Optionally saves the created inverted index to JSON files in a specified directory
@@ -141,19 +141,19 @@ class InvertedIndex():
         """
         # creating regular index
         for page_name, stemmed_token_map in extract_and_read_json(root_path):
-            self.indexDocument(page_name, stemmed_token_map)
+            self.index_document(page_name, stemmed_token_map)
 
         #@TODO: Based on get_query_results implementation, see if this sorting is neccessary 
         # sort index for quick search lookup
-        for token in self._invertedIndex:
-            self._invertedIndex[token] = sorted(self._invertedIndex[token], key = lambda posting: posting.tokenCount, reverse=True)
+        # for token in self._invertedIndex:
+        #     self._invertedIndex[token] = sorted(self._invertedIndex[token], key = lambda posting: posting.tokenCount, reverse=True)
             
         # save directory to json
         if save_dir_path is None: return
-        self.downloadIndexToDirectory(save_dir_path)
+        self.download_index_to_directory(save_dir_path)
 
 
-    def downloadIndexToDirectory(self, dir_path):
+    def download_index_to_directory(self, dir_path):
         """
         Given a path to a directory, saves the inverted index to a JSON file, then
         saves the mapping of document IDs to URLs to another JSON file 
@@ -170,7 +170,7 @@ class InvertedIndex():
             json.dump(self._docIDtoURL, json_file, indent=4)
     
 
-    def loadIndexFromDirectory(self, dir_path) -> bool:
+    def load_index_from_directory(self, dir_path) -> bool:
         """
         Given a path to a directory, loads the inverted index from a JSON file, then
         loads the mapping of document IDs to URLs to another JSON file
@@ -191,7 +191,46 @@ class InvertedIndex():
         return True
     
 
+
     def get_query_results(self, search_terms: list[str]) -> list[int]:
-        #@TODO Implement query algorithm
-        ...
-        return search_terms
+        if not search_terms:
+            return []
+
+        # retrieve postings for all query terms
+        postings = []
+        for term in search_terms:
+            if term not in self._invertedIndex:
+                return []
+
+            postings.append(self._invertedIndex[term])
+
+        # process smallest posting lists first
+        postings.sort(key=len)
+
+        # init with first/smallest posting list
+        temp_dict = {
+            docid: tf
+            for docid, tf in postings[0]
+        }
+
+        # intersect with remaining posting lists and accumulate total frequency
+        for term_list in postings[1:]:
+            current_dict = dict(term_list)
+
+            temp_dict = {
+                docid: tf + current_dict[docid]
+                for docid, tf in temp_dict.items() if docid in current_dict
+            }
+
+            if not temp_dict:
+                break
+
+        # sort by term frequency
+        results = sorted(
+            temp_dict.items(),
+            key=lambda item: item[1],
+            reverse=True
+        )
+
+        return results
+    
