@@ -74,7 +74,7 @@ def query_user_input(num_results = 5) -> None:
             results = _indexer.get_query_results(search_terms)
             elapsed_time = perf_counter() - start_time
 
-            print(f'\nSearch completed in {elapsed_time:.6f} seconds.\t\t\t|')
+            print(f'\nSearch completed in {elapsed_time:.6f} seconds.')
 
             num_found = len(results)
             if num_found == 0: 

@@ -1,3 +1,5 @@
 UNKNOWN_FILE_NAME : str = 'Untitled'
-CORPUS_ROOT_PATH : str = 'Data Sources/ANALYST'
+
+# "Data Sources/ANALYST" for testing, "DEV" for actual
+CORPUS_ROOT_PATH : str = 'DEV'
 JSON_DIRECTORY_NAME : str = 'indexFolder'
