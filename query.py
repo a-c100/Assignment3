@@ -1,23 +1,11 @@
 from time import perf_counter
 
-from utils.tokenizer import tokenize
-from utils.stemming import Stemmer
 from inverted_index import InvertedIndex
 from utils.constants import CORPUS_ROOT_PATH, JSON_DIRECTORY_NAME
+from utils.processing import process_query
 
 # one shared stemmer so we don't rebuild it for every query
-_stemmer = Stemmer()
 _indexer = InvertedIndex()
-
-def process_query(text: str) -> list[str]:
-    # turns raw search query into same terms as index
-    # removes duplicate terms (i.e. learn and learning)
-    # tokenize -> lowercase -> step
-    terms = [_stemmer.stem(token) for token in tokenize(text)]
-    
-    # returns unique stemmed query terms
-    return list(dict.fromkeys(terms))
-
 
 def get_number_from_user_input() -> int:
     """
