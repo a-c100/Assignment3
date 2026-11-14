@@ -127,7 +127,7 @@ class InvertedIndex():
             self.add_word_to_index(token, tokens_map[token], docID)
 
 
-    def index_directory(self, root_path : str, save_dir_path : str = "") -> None:
+    def index_directory(self, root_path: str, save_dir_path: str | None = None) -> None:
         """
         Given a root directory, recursively iterates through all files and builds the inverted index
         Optionally saves the created inverted index to JSON files in a specified directory
