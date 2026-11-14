@@ -46,6 +46,7 @@ def query_user_input(num_results = 5) -> None:
         if not query : continue
 
         if query[0].lower() == 'q':
+            print("Shutting down...")
             break
         elif query[0] == '#':
             num_results = get_number_from_user_input()
@@ -85,6 +86,7 @@ def run_query_from_input(json_load_dir : str) -> None:
     Returns:
         None
     """
+    print("Loading index from directory...")
     success = _indexer.load_index_from_directory(json_load_dir)
     if success:
         query_user_input()
