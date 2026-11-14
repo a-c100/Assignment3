@@ -2,6 +2,7 @@ import json
 from typing import NamedTuple
 from utils.extract_json import extract_and_read_json
 from utils.constants import UNKNOWN_FILE_NAME
+from math import log
 
 class Posting(NamedTuple):
     ''' stores the document ID and the number of times a token appears in that document '''
@@ -18,7 +19,8 @@ class InvertedIndex():
     def __init__(self):
         self._invertedIndex = dict() # maps each token to its list of docs
         self._docIDtoURL = dict() # maps doc ID's to their page name
-        self._docNum = 1 # keeping track of the 
+        self._docNum = 1 # keeping track of the
+        self._docLengths = dict() # maps doc id to token count
     
 
     def assign_docID(self, doc: str) -> int:
@@ -123,6 +125,8 @@ class InvertedIndex():
         """
         # docid to name mapping 
         docID = self.assign_docID(doc)
+        doc_length = sum(tokens_map.values())
+        self._docLengths[docID] = doc_length
         for token in tokens_map:
             self.add_word_to_index(token, tokens_map[token], docID)
 
@@ -233,4 +237,40 @@ class InvertedIndex():
         )
 
         return results
+
+    def get_query_results_tf_idf(self, search_terms: list[str]) -> list[tuple[int, float]]:
+        if not search_terms:
+            return []
+
+        term_data = []
+        for term in search_terms:
+            postings = self._invertedIndex.get(term)
+            if not postings:
+                return []
+
+            # {doc ID: token count}
+            doc_freqs = dict(postings)
+
+            # calculate inverse document frequency - IDF(term, Document)
+            idf = log((self.get_num_docs() + 1) / (len(postings) + 1)) + 1
+
+            term_data.append((doc_freqs, idf))
+
+        # retrieve first term's documents
+        matching_docs = set(term_data[0][0])
+
+        # use other term's documents to update the intersection
+        for doc_freqs, _ in term_data[1:]:
+            matching_docs.intersection_update(doc_freqs)
+
+        # summation of scores of each document: TF * IDF
+        scores = {
+            doc_id: sum(
+                (doc_freqs[doc_id] / self._docLengths[doc_id]) * idf
+                for doc_freqs, idf in term_data
+            )
+            for doc_id in matching_docs
+        }
+
+        return sorted(scores.items(), key=lambda item: item[1], reverse=True)
     
