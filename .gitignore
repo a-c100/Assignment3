@@ -9,3 +9,6 @@ __pycache__*
 
 # output files
 outputs/*
+
+# index folder (run locally to get)
+indexFolder

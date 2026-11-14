@@ -12,7 +12,7 @@ def process_query(text: str) -> list[str]:
     # returns unique stemmed query terms
     return list(dict.fromkeys(terms))
 
-def calculate_term_frequency():
+def calculate_term_frequency(term, document):
     """
     Measures word frequency in the document
     """
