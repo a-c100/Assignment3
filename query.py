@@ -61,6 +61,7 @@ def query_user_input(num_results = 5) -> None:
 
             # get query results
             results = _indexer.get_query_results_tf_idf(search_terms)
+            # results = _indexer.get_query_results(search_terms)
             elapsed_time = perf_counter() - start_time
 
             print(f'\nSearch completed in {elapsed_time:.6f} seconds.')

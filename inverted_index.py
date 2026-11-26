@@ -131,7 +131,7 @@ class InvertedIndex():
             self.add_word_to_index(token, tokens_map[token], docID)
 
 
-    def index_directory(self, root_path: str, save_dir_path: str | None = None) -> None:
+    def index_directory(self, root_path: str, save_dir_path: str = None) -> None:
         """
         Given a root directory, recursively iterates through all files and builds the inverted index
         Optionally saves the created inverted index to JSON files in a specified directory
@@ -201,49 +201,75 @@ class InvertedIndex():
         return True
     
 
-
-    def get_query_results(self, search_terms: list[str]) -> list[tuple[int, int]]:
-        if not search_terms:
-            return []
-
-        # retrieve postings for all query terms
+    # @TODO Add logic for partial indexes here to return to query function
+    def get_postings(self, search_terms: list[str]) -> list[list[str]]:
         postings = []
+        if not search_terms: return []
         for term in search_terms:
+            # function currently returns nothing if any search term in the list is invalid
+            # potentially continue instead if we want best results in spite of a faulty query term
             if term not in self._invertedIndex:
                 return []
 
             postings.append(self._invertedIndex[term])
+        
+        return postings
+
+
+    def get_query_results(self, search_terms: list[str]) -> list[tuple[int, int]]:
+        # retrieve postings for all query terms
+        postings = self.get_postings(search_terms)
+
+        # ensure valis postings
+        if not postings or any(not p for p in postings): return []
 
         # process smallest posting lists first
         postings.sort(key=len)
 
-        # init with first/smallest posting list
-        temp_dict = {
-            docid: tf
-            for docid, tf in postings[0]
-        }
+        # shortest list provides our candidate documents
+        candidates = postings[0]
 
-        # intersect with remaining posting lists and accumulate total frequency
-        for term_list in postings[1:]:
-            current_dict = dict(term_list)
+        # one pointer for each remaining posting list
+        pointers = [0] * len(postings)
 
-            temp_dict = {
-                docid: tf + current_dict[docid]
-                for docid, tf in temp_dict.items() if docid in current_dict
-            }
+        results = []
 
-            if not temp_dict:
-                break
+        # iterate through candidate documents
+        for docid, tf in candidates:
+            total_tf = tf
+            matched = True
 
-        # sort by term frequency
-        results = sorted(
-            temp_dict.items(),
-            key=lambda item: item[1],
-            reverse=True
-        )
+            # compare candidate against every other posting list
+            for i in range(1, len(postings)):
+                current_list = postings[i]
+                pointer = pointers[i]
+
+                # advance until we reach the candidate or pass it
+                while (pointer < len(current_list) and
+                    current_list[pointer][0] < docid):
+                    pointer += 1
+
+                pointers[i] = pointer
+
+                # candidate is missing from this posting list
+                if (pointer == len(current_list) or
+                        current_list[pointer][0] != docid):
+                    matched = False
+                    break
+
+                #@TODO: Adapt this for tf-idf scores
+                # accumulate term frequency
+                total_tf += current_list[pointer][1]
+
+            if matched:
+                results.append((docid, total_tf))
+
+        # rank by accumulated term frequency
+        results.sort(key=lambda item: item[1], reverse=True)
 
         return results
 
+    #@TODO apply TF-IDF logic to post-processing of index creation, not in real-time querying
     def get_query_results_tf_idf(self, search_terms: list[str]) -> list[tuple[int, float]]:
         if not search_terms:
             return []
