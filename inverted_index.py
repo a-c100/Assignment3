@@ -191,6 +191,12 @@ class InvertedIndex():
             with open(f'{dir_path}/{InvertedIndex.JSON_DOC_MAP_NAME}', "r") as json_file:
                 self._docIDtoURL = json.load(json_file)
             self._docNum = len(self._docIDtoURL) + 1
+            self._docLengths = {}
+            for postings in self._invertedIndex.values():
+                for doc_id, token_count in postings:
+                    self._docLengths[doc_id] = (
+                        self._docLengths.get(doc_id, 0) + token_count
+                    )
         except FileNotFoundError: return False
         return True
     
