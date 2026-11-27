@@ -3,6 +3,7 @@ from typing import NamedTuple
 from utils.extract_json import extract_and_read_json
 from utils.constants import UNKNOWN_FILE_NAME
 from math import log
+import os
 
 class Posting(NamedTuple):
     ''' stores the document ID and the number of times a token appears in that document '''
@@ -83,7 +84,7 @@ class InvertedIndex():
         Returns:
             dict: a mapping of Document IDs to URLs
         """
-        return self._invertedIndex 
+        return self._docIDtoURL 
 
 
     def get_num_unique_tokens(self) -> int:
@@ -158,6 +159,7 @@ class InvertedIndex():
 
 
     def download_index_to_directory(self, dir_path):
+        os.makedirs(dir_path, exist_ok=True)
         """
         Given a path to a directory, saves the inverted index to a JSON file, then
         saves the mapping of document IDs to URLs to another JSON file 
@@ -202,7 +204,7 @@ class InvertedIndex():
     
 
     # @TODO Add logic for partial indexes here to return to query function
-    def get_postings(self, search_terms: list[str]) -> list[list[str]]:
+    def get_postings(self, search_terms: list[str]) -> list[list[Posting]]:
         postings = []
         if not search_terms: return []
         for term in search_terms:
