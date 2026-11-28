@@ -74,7 +74,7 @@ def query_user_input(num_results = 5) -> None:
                 print(f'{num_found} results found!\n')
 
             for result in results[:num_results]:
-                print(_indexer._docIDtoURL[str(result[0])], result[1])
+                print(_indexer._docIDtoURL[result[0]], result[1])
 
 
 def run_query_from_input(json_load_dir : str) -> None:

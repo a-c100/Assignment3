@@ -2,8 +2,10 @@ import json
 from typing import NamedTuple
 from utils.extract_json import extract_and_read_json
 from utils.constants import UNKNOWN_FILE_NAME, DOCS_PER_PARTIAL, PARTIAL_DIR
-from math import log
+from math import log, log10
 import os
+import glob
+import shutil
 
 class Posting(NamedTuple):
     ''' stores the document ID and the number of times a token appears in that document '''
@@ -14,8 +16,7 @@ class Posting(NamedTuple):
 class InvertedIndex():
     JSON_INDEX_NAME = 'invertedIndex.json'
     JSON_DOC_MAP_NAME = 'docMap.json'
-
-
+    JSON_DOC_LENGTHS_NAME = 'docLengths.json'
 
     def __init__(self):
         self._invertedIndex = dict() # maps each token to its list of docs
@@ -154,6 +155,7 @@ class InvertedIndex():
         self._invertedIndex.clear()
 
     def _merge_partials(self, partial_dir, save_dir):
+        os.makedirs(save_dir, exist_ok=True)
         buckets = ['_'] + list('abcdefghijklmnopqrstuvwxyz')
 
         for b in buckets:
@@ -181,6 +183,12 @@ class InvertedIndex():
         Returns:
             None
         """
+        if os.path.exists(PARTIAL_DIR):
+            shutil.rmtree(PARTIAL_DIR)
+
+        os.makedirs(PARTIAL_DIR, exist_ok=True)
+        self._partialIndexCount = 0
+
         # creating index
         for page_name, stemmed_token_map in extract_and_read_json(root_path):
             self.index_document(page_name, stemmed_token_map)
@@ -200,7 +208,7 @@ class InvertedIndex():
         #     self._invertedIndex[token] = sorted(self._invertedIndex[token], key = lambda posting: posting.tokenCount, reverse=True)
             
         # save directory to json
-        if save_dir_path is None: return
+        if save_dir_path is None: save_dir_path = InvertedIndex.JSON_INDEX_NAME
         self.download_index_to_directory(save_dir_path)
 
 
@@ -220,6 +228,8 @@ class InvertedIndex():
             json.dump(self._invertedIndex, json_file, indent=4)
         with open(f'{dir_path}/{InvertedIndex.JSON_DOC_MAP_NAME}', "w") as json_file:
             json.dump(self._docIDtoURL, json_file, indent=4)
+        with open(f'{dir_path}/{InvertedIndex.JSON_DOC_LENGTHS_NAME}', "w") as json_file:
+            json.dump(self._docLengths, json_file, indent=4)
     
 
     def load_index_from_directory(self, dir_path) -> bool:
@@ -233,18 +243,26 @@ class InvertedIndex():
         Returns:
             bool: Whether or not the files were found in the directory and processed successfully 
         """
+        
         try:
-            with open(f'{dir_path}/{InvertedIndex.JSON_INDEX_NAME}', "r") as json_file:
-                self._invertedIndex = json.load(json_file)
-            with open(f'{dir_path}/{InvertedIndex.JSON_DOC_MAP_NAME}', "r") as json_file:
-                self._docIDtoURL = json.load(json_file)
+            # doc map: JSON keys come back as strings, so convert to int
+            with open(f'{dir_path}/{InvertedIndex.JSON_DOC_MAP_NAME}', "r") as f:
+                self._docIDtoURL = {int(k): v for k, v in json.load(f).items()}
+
+            # doc lengths: load from disk
+            with open(f'{dir_path}/{InvertedIndex.JSON_DOC_LENGTHS_NAME}', "r") as f:
+                self._docLengths = {int(k): v for k, v in json.load(f).items()}
+
             self._docNum = len(self._docIDtoURL) + 1
-            self._docLengths = {}
-            for postings in self._invertedIndex.values():
-                for doc_id, token_count in postings:
-                    self._docLengths[doc_id] = (
-                        self._docLengths.get(doc_id, 0) + token_count
-                    )
+
+            # inverted index: merge every bucket file (buckets hold disjoint tokens)
+            self._invertedIndex = {}
+            bucket_files = glob.glob(f'{dir_path}/index_*.json')
+            if not bucket_files:
+                return False
+            for path in bucket_files:
+                with open(path, "r") as f:
+                    self._invertedIndex.update(json.load(f))
         except FileNotFoundError: return False
         return True
     
@@ -342,11 +360,14 @@ class InvertedIndex():
         # use other term's documents to update the intersection
         for doc_freqs, _ in term_data[1:]:
             matching_docs.intersection_update(doc_freqs)
+            if not matching_docs:
+                return []
 
         # summation of scores of each document: TF * IDF
         scores = {
             doc_id: sum(
                 (doc_freqs[doc_id] / self._docLengths[doc_id]) * idf
+                # (1 + log10(doc_freqs[doc_id])) * idf
                 for doc_freqs, idf in term_data
             )
             for doc_id in matching_docs

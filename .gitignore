@@ -12,6 +12,7 @@ outputs/*
 
 # index folder (run locally to get)
 indexFolder
+partials/
 
 # zip files
 *.zip

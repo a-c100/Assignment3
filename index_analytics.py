@@ -25,7 +25,7 @@ def get_dict_disk_size_kb(mapping: dict) -> int:
     return int(size_in_kb)
 
 
-def analyzeInvertedIndex(root : str, json_save_folder = None, write_to_txt_file = True) -> None:
+def analyzeInvertedIndex(root : str, json_save_folder : str, write_to_txt_file = True) -> None:
     """
     Creates the inverted index and outputs it to text files
      Args:
@@ -34,7 +34,7 @@ def analyzeInvertedIndex(root : str, json_save_folder = None, write_to_txt_file 
         None
     """
     indexer = InvertedIndex()
-    indexer.index_directory(root)
+    indexer.index_directory(root, json_save_folder)
     index = indexer.get_inverted_index()
     if write_to_txt_file:
         with open("outputs/invertedMatrix.txt", "w", encoding="utf-8") as f:
