@@ -290,60 +290,6 @@ class InvertedIndex():
         
         return postings
 
-
-    def get_query_results(self, search_terms: list[str]) -> list[tuple[int, int]]:
-        # retrieve postings for all query terms
-        postings = self.get_postings(search_terms)
-
-        # ensure valis postings
-        if not postings or any(not p for p in postings): return []
-
-        # process smallest posting lists first
-        postings.sort(key=len)
-
-        # shortest list provides our candidate documents
-        candidates = postings[0]
-
-        # one pointer for each remaining posting list
-        pointers = [0] * len(postings)
-
-        results = []
-
-        # iterate through candidate documents
-        for docid, tf in candidates:
-            total_tf = tf
-            matched = True
-
-            # compare candidate against every other posting list
-            for i in range(1, len(postings)):
-                current_list = postings[i]
-                pointer = pointers[i]
-
-                # advance until we reach the candidate or pass it
-                while (pointer < len(current_list) and
-                    current_list[pointer][0] < docid):
-                    pointer += 1
-
-                pointers[i] = pointer
-
-                # candidate is missing from this posting list
-                if (pointer == len(current_list) or
-                        current_list[pointer][0] != docid):
-                    matched = False
-                    break
-
-                #@TODO: Adapt this for tf-idf scores
-                # accumulate term frequency
-                total_tf += current_list[pointer][1]
-
-            if matched:
-                results.append((docid, total_tf))
-
-        # rank by accumulated term frequency
-        results.sort(key=lambda item: item[1], reverse=True)
-
-        return results
-
     #@TODO apply TF-IDF logic to post-processing of index creation, not in real-time querying
     def get_query_results_tf_idf(self, search_terms: list[str]) -> list[tuple[int, float]]:
         if not search_terms:
