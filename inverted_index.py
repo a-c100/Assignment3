@@ -186,6 +186,14 @@ class InvertedIndex():
         if os.path.exists(PARTIAL_DIR):
             shutil.rmtree(PARTIAL_DIR)
 
+        if save_dir_path is not None:
+            os.makedirs(save_dir_path, exist_ok=True)
+
+            for old_bucket in glob.glob(
+                os.path.join(save_dir_path, "index_*.json")
+            ):
+                os.remove(old_bucket)
+
         os.makedirs(PARTIAL_DIR, exist_ok=True)
         self._partialIndexCount = 0
 
@@ -199,6 +207,8 @@ class InvertedIndex():
         if self._invertedIndex:
             self._write_partial(PARTIAL_DIR)
 
+        if save_dir_path is None: save_dir_path = InvertedIndex.JSON_INDEX_NAME
+
         # merge partial docs
         self._merge_partials(PARTIAL_DIR, save_dir_path)
 
@@ -208,7 +218,6 @@ class InvertedIndex():
         #     self._invertedIndex[token] = sorted(self._invertedIndex[token], key = lambda posting: posting.tokenCount, reverse=True)
             
         # save directory to json
-        if save_dir_path is None: save_dir_path = InvertedIndex.JSON_INDEX_NAME
         self.download_index_to_directory(save_dir_path)
 
 
