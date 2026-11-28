@@ -1,7 +1,7 @@
 import json
 from typing import NamedTuple
 from utils.extract_json import extract_and_read_json
-from utils.constants import UNKNOWN_FILE_NAME
+from utils.constants import UNKNOWN_FILE_NAME, DOCS_PER_PARTIAL, PARTIAL_DIR
 from math import log
 import os
 
@@ -22,7 +22,8 @@ class InvertedIndex():
         self._docIDtoURL = dict() # maps doc ID's to their page name
         self._docNum = 1 # keeping track of the
         self._docLengths = dict() # maps doc id to token count
-    
+        self._partialIndexCount = 0 # number of partial indexes
+        self._partialDir = None
 
     def assign_docID(self, doc: str) -> int:
         """
@@ -112,7 +113,6 @@ class InvertedIndex():
         """
         return self._docNum - 1
 
-
     def index_document(self, doc: str, tokens_map: dict[str, int]) -> None:
         """
         Indexes a document, assigining doc an integer ID and extending the inverted index
@@ -131,6 +131,43 @@ class InvertedIndex():
         for token in tokens_map:
             self.add_word_to_index(token, tokens_map[token], docID)
 
+    def _write_partial(self, dir_path : str) -> None:
+        """
+        Writes the partial inverted index to disc and clears the inverted index in memory
+
+        Args:
+            dir_path (str): name of directory to save the partial index
+        Returns:
+            None
+        """
+        os.makedirs(dir_path, exist_ok=True)
+        path : str = f"{dir_path}/partial_{self._partialIndexCount}.json"
+
+        # sort index so it's easier to merge later
+        sorted_index = dict(sorted(self._invertedIndex.items()))
+        with open(path, "w") as f:
+            json.dump(sorted_index, f, indent=2)
+
+        self._partialIndexCount += 1
+
+        # clear inverted index
+        self._invertedIndex.clear()
+
+    def _merge_partials(self, partial_dir, save_dir):
+        buckets = ['_'] + list('abcdefghijklmnopqrstuvwxyz')
+
+        for b in buckets:
+            merged = {}
+            for i in range(self._partialIndexCount):      # partial order preserved
+                with open(f'{partial_dir}/partial_{i}.json') as f:
+                    partial = json.load(f)
+                for token, postings in partial.items():
+                    if _bucket(token) == b:
+                        merged.setdefault(token, []).extend(postings)
+
+            if merged:
+                with open(f'{save_dir}/index_{b}.json', 'w') as f:
+                    json.dump(merged, f)
 
     def index_directory(self, root_path: str, save_dir_path: str = None) -> None:
         """
@@ -144,9 +181,18 @@ class InvertedIndex():
         Returns:
             None
         """
-        # creating regular index
+        # creating index
         for page_name, stemmed_token_map in extract_and_read_json(root_path):
             self.index_document(page_name, stemmed_token_map)
+            if self.get_num_docs() % DOCS_PER_PARTIAL == 0:
+                self._write_partial(PARTIAL_DIR)
+
+        # write leftover docs
+        if self._invertedIndex:
+            self._write_partial(PARTIAL_DIR)
+
+        # merge partial docs
+        self._merge_partials(PARTIAL_DIR, save_dir_path)
 
         #@TODO: Based on get_query_results implementation, see if this sorting is neccessary 
         # sort index for quick search lookup
@@ -308,3 +354,5 @@ class InvertedIndex():
 
         return sorted(scores.items(), key=lambda item: item[1], reverse=True)
     
+def _bucket(token):
+    return token[0] if token[0].isalpha() else '_'   # digits/symbols together
